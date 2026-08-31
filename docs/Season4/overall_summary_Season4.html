@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overall Summary - Season 4 (Latest)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0b1120;
+            --bg-card: #151e32;
+            --bg-card-hover: #1e2d4a;
+            --border-color: #233252;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-rose: #f43f5e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); padding: 24px; min-height: 100vh; }
+        header { max-width: 1280px; margin: 0 auto 24px auto; display: flex; flex-direction: column; gap: 16px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .brand-container { display: flex; align-items: center; gap: 16px; }
+        .brand { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .season-select-wrapper { display: flex; align-items: center; gap: 8px; background: var(--bg-card); padding: 4px 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .season-select-label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
+        .season-select { background: transparent; color: var(--accent-blue); font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.9rem; border: none; outline: none; cursor: pointer; }
+        .season-select option { background: var(--bg-card); color: var(--text-primary); }
+        .player-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+        .player-nav-btn { text-decoration: none; color: var(--text-secondary); background: var(--bg-card); padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; border: 1px solid var(--border-color); transition: all 0.2s ease; }
+        .player-nav-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--accent-blue); }
+        .player-nav-btn.active { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border-color: #3b82f6; font-weight: 600; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .container { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        .season-hero { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+        .hero-title h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--text-primary); }
+        .hero-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px; }
+        .kpi-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+        .kpi-card { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; min-width: 130px; text-align: center; }
+        .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--accent-emerald); }
+        .kpi-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+        .tab-menu { display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; overflow-x: auto; }
+        .tab-btn { background: none; border: none; color: var(--text-secondary); font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; padding: 10px 20px; cursor: pointer; border-radius: 8px 8px 0 0; transition: all 0.2s ease; }
+        .tab-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .tab-btn.active { color: var(--accent-blue); border-bottom: 3px solid var(--accent-blue); background: rgba(59, 130, 246, 0.08); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .card-title { font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 12px; }
+        .chart-container { position: relative; height: 320px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+        th { background: rgba(30, 41, 59, 0.8); color: var(--text-secondary); font-weight: 600; text-align: left; padding: 12px 16px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color); }
+        td { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--text-primary); }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .card-pill { background: rgba(255, 255, 255, 0.06); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; }
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .sub-tab-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+        .sub-tab-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+        .search-box { width: 100%; padding: 10px 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 16px; }
+        .search-box:focus { outline: none; border-color: var(--accent-blue); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <div class="brand-container">
+                <div class="brand">Commander Clash Stats</div>
+                <div class="season-select-wrapper">
+                    <span class="season-select-label">View:</span>
+                    <select id="seasonSelect" class="season-select" onchange="window.location.href=this.value">
+                        <option value="../Season4/overall_summary_Season4.html" selected>Season 4 (Latest)</option>
+<option value="../AllSeasons/overall_summary_AllSeasons.html" >All Seasons Combined</option>
+<option value="../Season3/overall_summary_Season3.html" >Season 3</option>
+<option value="../Season2/overall_summary_Season2.html" >Season 2</option>
+<option value="../Season1/overall_summary_Season1.html" >Season 1</option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="player-nav">
+            <a href="overall_summary_Season4.html" class="player-nav-btn active">🏆 Overall Summary</a>
+<a href="Angelo_summary_Season4.html" class="player-nav-btn">Angelo</a>
+<a href="EJ_summary_Season4.html" class="player-nav-btn">EJ</a>
+<a href="Neil_summary_Season4.html" class="player-nav-btn">Neil</a>
+<a href="Nik_summary_Season4.html" class="player-nav-btn">Nik</a>
+<a href="Ruby_summary_Season4.html" class="player-nav-btn">Ruby</a>
+<a href="Will B_summary_Season4.html" class="player-nav-btn">Will B</a>
+
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="season-hero">
+            <div class="hero-title">
+                <h1>Overview & Leaderboards</h1>
+                <div class="hero-subtitle">Comprehensive statistics across all players in Season 4 (Latest)</div>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">20</div>
+                    <div class="kpi-label">Total Games</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color: var(--accent-blue);">6</div>
+                    <div class="kpi-label">Players</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color: var(--accent-purple);">86</div>
+                    <div class="kpi-label">Total Decks</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color: var(--accent-amber);">$687.44</div>
+                    <div class="kpi-label">Avg Deck Price</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('placements')">Placements</button>
+            <button class="tab-btn" onclick="switchTab('turn-order')">Turn Order</button>
+            <button class="tab-btn" onclick="switchTab('deck-prices')">Deck Prices</button>
+            <button class="tab-btn" onclick="switchTab('card-categories')">Card Categories</button>
+            <button class="tab-btn" onclick="switchTab('color-identities')">Color Identities</button>
+            <button class="tab-btn" onclick="switchTab('popular-cards')">Popular Cards</button>
+        </div>
+
+        <div id="tab-placements" class="tab-content active">
+            <div class="grid-2">
+                <div class="card"><div class="card-title">1st Place Finishes</div><div class="chart-container"><canvas id="chartP1"></canvas></div></div>
+                <div class="card"><div class="card-title">2nd Place Finishes</div><div class="chart-container"><canvas id="chartP2"></canvas></div></div>
+                <div class="card"><div class="card-title">3rd Place Finishes</div><div class="chart-container"><canvas id="chartP3"></canvas></div></div>
+                <div class="card"><div class="card-title">4th Place Finishes</div><div class="chart-container"><canvas id="chartP4"></canvas></div></div>
+            </div>
+        </div>
+        
+        <div id="tab-turn-order" class="tab-content">
+            <div class="grid-2">
+                <div class="card"><div class="card-title">Times Went First</div><div class="chart-container"><canvas id="chartTimesWentFirst"></canvas></div></div>
+                <div class="card"><div class="card-title">Average Turn Order Position</div><div class="chart-container"><canvas id="chartAvgTurnOrder"></canvas></div></div>
+            </div>
+        </div>
+        
+        <div id="tab-deck-prices" class="tab-content">
+            <div class="card" style="margin-bottom: 24px;"><div class="card-title">Avg Price Comparison</div><div class="chart-container" style="height: 360px;"><canvas id="chartPriceComparison"></canvas></div></div>
+        </div>
+
+        <div id="tab-card-categories" class="tab-content">
+            <div class="grid-2">
+                <div class="card"><div class="card-title">Ramp Cards (Avg per Deck)</div><div class="chart-container"><canvas id="chartRamp"></canvas></div></div>
+                <div class="card"><div class="card-title">Draw Cards (Avg per Deck)</div><div class="chart-container"><canvas id="chartDraw"></canvas></div></div>
+                <div class="card"><div class="card-title">Removal Cards (Avg per Deck)</div><div class="chart-container"><canvas id="chartRemoval"></canvas></div></div>
+                <div class="card"><div class="card-title">Protection Cards (Avg per Deck)</div><div class="chart-container"><canvas id="chartProtection"></canvas></div></div>
+                <div class="card"><div class="card-title">Recursion Cards (Avg per Deck)</div><div class="chart-container"><canvas id="chartRecursion"></canvas></div></div>
+                <div class="card"><div class="card-title">MDFC Lands (Avg per Deck)</div><div class="chart-container"><canvas id="chartLandsMDFC"></canvas></div></div>
+            </div>
+        </div>
+
+        <div id="tab-color-identities" class="tab-content">
+            <div class="card">
+                <div class="card-title">Color Identity Choices Across All Players</div>
+                <table>
+                    <thead><tr><th>Color Combination / Guild / Shard</th><th>Count Played</th></tr></thead>
+                    <tbody>
+                        <tr><td><span class='card-pill'>Rakdos</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>10</td></tr><tr><td><span class='card-pill'>Red</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>6</td></tr><tr><td><span class='card-pill'>Orzhov</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>6</td></tr><tr><td><span class='card-pill'>Esper</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>6</td></tr><tr><td><span class='card-pill'>Simic</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>5</td></tr><tr><td><span class='card-pill'>Dimir</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>4</td></tr><tr><td><span class='card-pill'>Black</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>4</td></tr><tr><td><span class='card-pill'>Sultai</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>4</td></tr><tr><td><span class='card-pill'>Naya</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>4</td></tr><tr><td><span class='card-pill'>Jund</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Five-color (WUBRG)</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Boros</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Jeskai</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Azorius</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>No-Black</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Golgari</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Blue</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>2</td></tr><tr><td><span class='card-pill'>Bant</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>2</td></tr><tr><td><span class='card-pill'>Selesnya</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>2</td></tr><tr><td><span class='card-pill'>White</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>2</td></tr><tr><td><span class='card-pill'>Mardu</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>2</td></tr><tr><td><span class='card-pill'>Temur</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Grixis</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Abzan</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Gruul</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Green</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-popular-cards" class="tab-content">
+            <div class="card">
+                <div class="card-title">Most Popular Cards</div>
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchPopSubTab('Colorless')">Colorless</button>
+                    <button class="sub-tab-btn" onclick="switchPopSubTab('White')">White</button>
+                    <button class="sub-tab-btn" onclick="switchPopSubTab('Blue')">Blue</button>
+                    <button class="sub-tab-btn" onclick="switchPopSubTab('Black')">Black</button>
+                    <button class="sub-tab-btn" onclick="switchPopSubTab('Red')">Red</button>
+                    <button class="sub-tab-btn" onclick="switchPopSubTab('Green')">Green</button>
+                    <button class="sub-tab-btn" onclick="switchPopSubTab('Multicolored')">Multicolored</button>
+                </div>
+                <input type="text" class="search-box" id="popSearch" onkeyup="filterPopCards()" placeholder="Search popular cards...">
+                
+                <div id="pop-subtab-Colorless" class="pop-subtab-content" style="display: block;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Arcane Signet</strong></td><td><span class="card-pill">42</span></td><td>2.0</td><td>$0.42</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Swiftfoot Boots</strong></td><td><span class="card-pill">35</span></td><td>2.0</td><td>$2.21</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Lightning Greaves</strong></td><td><span class="card-pill">27</span></td><td>2.0</td><td>$4.34</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Thought Vessel</strong></td><td><span class="card-pill">19</span></td><td>2.0</td><td>$2.41</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Sword of the Animist</strong></td><td><span class="card-pill">13</span></td><td>2.0</td><td>$3.83</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Boompile</strong></td><td><span class="card-pill">12</span></td><td>4.0</td><td>$0.61</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>The Ozolith</strong></td><td><span class="card-pill">11</span></td><td>1.0</td><td>$64.38</td><td>Counters</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Skullclamp</strong></td><td><span class="card-pill">10</span></td><td>1.0</td><td>$5.61</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Fellwar Stone</strong></td><td><span class="card-pill">10</span></td><td>2.0</td><td>$0.85</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Urza&#x27;s Incubator</strong></td><td><span class="card-pill">10</span></td><td>3.0</td><td>$19.55</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Solemn Simulacrum</strong></td><td><span class="card-pill">10</span></td><td>4.0</td><td>$0.30</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Crashing Drawbridge</strong></td><td><span class="card-pill">10</span></td><td>2.0</td><td>$0.75</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Decanter of Endless Water</strong></td><td><span class="card-pill">10</span></td><td>3.0</td><td>$3.20</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Herald&#x27;s Horn</strong></td><td><span class="card-pill">9</span></td><td>3.0</td><td>$1.89</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Ornithopter of Paradise</strong></td><td><span class="card-pill">9</span></td><td>2.0</td><td>$0.41</td><td>Ramp</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="pop-subtab-White" class="pop-subtab-content" style="display: none;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Path to Exile</strong></td><td><span class="card-pill">22</span></td><td>1.0</td><td>$1.26</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Generous Gift</strong></td><td><span class="card-pill">18</span></td><td>3.0</td><td>$0.87</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Swords to Plowshares</strong></td><td><span class="card-pill">16</span></td><td>1.0</td><td>$1.32</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Stroke of Midnight</strong></td><td><span class="card-pill">12</span></td><td>3.0</td><td>$0.40</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Witch Enchanter // Witch-Blessed Meadow</strong></td><td><span class="card-pill">12</span></td><td>4.0</td><td>$5.19</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Hour of Revelation</strong></td><td><span class="card-pill">8</span></td><td>6.0</td><td>$1.43</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Haliya, Guided by Light</strong></td><td><span class="card-pill">8</span></td><td>3.0</td><td>$2.72</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Caretaker&#x27;s Talent</strong></td><td><span class="card-pill">7</span></td><td>3.0</td><td>$9.46</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Restoration Magic</strong></td><td><span class="card-pill">7</span></td><td>1.0</td><td>$2.54</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Renewed Solidarity</strong></td><td><span class="card-pill">6</span></td><td>3.0</td><td>$4.44</td><td>Tokens</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Tocasia&#x27;s Welcome</strong></td><td><span class="card-pill">6</span></td><td>3.0</td><td>$1.07</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Soul Warden</strong></td><td><span class="card-pill">6</span></td><td>1.0</td><td>$2.94</td><td>Lifegain</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Soul&#x27;s Attendant</strong></td><td><span class="card-pill">6</span></td><td>1.0</td><td>$5.43</td><td>Lifegain</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>The Gaffer</strong></td><td><span class="card-pill">6</span></td><td>3.0</td><td>$6.89</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>The Wind Crystal</strong></td><td><span class="card-pill">6</span></td><td>4.0</td><td>$6.89</td><td>Ramp</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="pop-subtab-Blue" class="pop-subtab-content" style="display: none;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Counterspell</strong></td><td><span class="card-pill">24</span></td><td>2.0</td><td>$1.29</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Swan Song</strong></td><td><span class="card-pill">20</span></td><td>1.0</td><td>$9.45</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>An Offer You Can&#x27;t Refuse</strong></td><td><span class="card-pill">19</span></td><td>1.0</td><td>$3.07</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Arcane Denial</strong></td><td><span class="card-pill">15</span></td><td>2.0</td><td>$1.81</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Sink into Stupor // Soporific Springs</strong></td><td><span class="card-pill">14</span></td><td>3.0</td><td>$6.73</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Frantic Search</strong></td><td><span class="card-pill">11</span></td><td>3.0</td><td>$0.75</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Kindred Discovery</strong></td><td><span class="card-pill">9</span></td><td>5.0</td><td>$6.09</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Negate</strong></td><td><span class="card-pill">8</span></td><td>2.0</td><td>$0.14</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Windfall</strong></td><td><span class="card-pill">7</span></td><td>3.0</td><td>$4.64</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Sea Gate Restoration // Sea Gate, Reborn</strong></td><td><span class="card-pill">7</span></td><td>7.0</td><td>$35.43</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Brainstorm</strong></td><td><span class="card-pill">6</span></td><td>1.0</td><td>$0.80</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Distant Melody</strong></td><td><span class="card-pill">6</span></td><td>4.0</td><td>$0.36</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Reflections of Littjara</strong></td><td><span class="card-pill">6</span></td><td>5.0</td><td>$1.48</td><td>Copy</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Mana Drain</strong></td><td><span class="card-pill">6</span></td><td>2.0</td><td>$53.69</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Ledger Shredder</strong></td><td><span class="card-pill">6</span></td><td>2.0</td><td>$7.80</td><td>Draw</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="pop-subtab-Black" class="pop-subtab-content" style="display: none;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Toxic Deluge</strong></td><td><span class="card-pill">27</span></td><td>3.0</td><td>$4.47</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Fell the Profane // Fell Mire</strong></td><td><span class="card-pill">21</span></td><td>4.0</td><td>$4.44</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Black Market Connections</strong></td><td><span class="card-pill">21</span></td><td>3.0</td><td>$10.69</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Malakir Rebirth // Malakir Mire</strong></td><td><span class="card-pill">20</span></td><td>1.0</td><td>$14.36</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Withering Torment</strong></td><td><span class="card-pill">14</span></td><td>3.0</td><td>$0.83</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Deadly Dispute</strong></td><td><span class="card-pill">12</span></td><td>2.0</td><td>$0.26</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Victimize</strong></td><td><span class="card-pill">12</span></td><td>3.0</td><td>$0.49</td><td>Recursion</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Dark Ritual</strong></td><td><span class="card-pill">12</span></td><td>1.0</td><td>$0.44</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Reanimate</strong></td><td><span class="card-pill">11</span></td><td>1.0</td><td>$2.05</td><td>Recursion</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Living Death</strong></td><td><span class="card-pill">11</span></td><td>5.0</td><td>$2.84</td><td>Recursion</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Damnation</strong></td><td><span class="card-pill">11</span></td><td>4.0</td><td>$16.51</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Village Rites</strong></td><td><span class="card-pill">10</span></td><td>1.0</td><td>$0.29</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Animate Dead</strong></td><td><span class="card-pill">9</span></td><td>2.0</td><td>$5.97</td><td>Recursion</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Nazgûl</strong></td><td><span class="card-pill">9</span></td><td>3.0</td><td>$22.94</td><td>Counters</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Feed the Swarm</strong></td><td><span class="card-pill">8</span></td><td>2.0</td><td>$0.18</td><td>Removal</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="pop-subtab-Red" class="pop-subtab-content" style="display: none;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Blasphemous Act</strong></td><td><span class="card-pill">26</span></td><td>9.0</td><td>$0.76</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Chaos Warp</strong></td><td><span class="card-pill">21</span></td><td>3.0</td><td>$0.35</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Return the Favor</strong></td><td><span class="card-pill">12</span></td><td>2.0</td><td>$0.52</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Untimely Malfunction</strong></td><td><span class="card-pill">12</span></td><td>2.0</td><td>$8.43</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Vandalblast</strong></td><td><span class="card-pill">12</span></td><td>1.0</td><td>$1.13</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Reverberate</strong></td><td><span class="card-pill">11</span></td><td>2.0</td><td>$2.96</td><td>Copy</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Big Score</strong></td><td><span class="card-pill">11</span></td><td>4.0</td><td>$0.43</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Sundering Eruption // Volcanic Fissure</strong></td><td><span class="card-pill">10</span></td><td>3.0</td><td>$1.33</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Goblin Matron</strong></td><td><span class="card-pill">10</span></td><td>3.0</td><td>$0.21</td><td>Tutor</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Hexing Squelcher</strong></td><td><span class="card-pill">10</span></td><td>2.0</td><td>$21.81</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Faithless Looting</strong></td><td><span class="card-pill">9</span></td><td>1.0</td><td>$0.33</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Siege-Gang Lieutenant</strong></td><td><span class="card-pill">8</span></td><td>4.0</td><td>$3.18</td><td>Tokens</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Professional Face-Breaker</strong></td><td><span class="card-pill">8</span></td><td>3.0</td><td>$6.50</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Abrade</strong></td><td><span class="card-pill">8</span></td><td>2.0</td><td>$0.16</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Redirect Lightning</strong></td><td><span class="card-pill">7</span></td><td>1.0</td><td>$13.08</td><td>Protection</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="pop-subtab-Green" class="pop-subtab-content" style="display: none;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Slime Against Humanity</strong></td><td><span class="card-pill">30</span></td><td>3.0</td><td>$1.85</td><td>Tokens</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Heroic Intervention</strong></td><td><span class="card-pill">23</span></td><td>2.0</td><td>$8.59</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Nature&#x27;s Lore</strong></td><td><span class="card-pill">23</span></td><td>2.0</td><td>$2.56</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Beast Within</strong></td><td><span class="card-pill">21</span></td><td>3.0</td><td>$0.56</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Three Visits</strong></td><td><span class="card-pill">18</span></td><td>2.0</td><td>$5.59</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Return of the Wildspeaker</strong></td><td><span class="card-pill">16</span></td><td>5.0</td><td>$1.41</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Beast Whisperer</strong></td><td><span class="card-pill">15</span></td><td>4.0</td><td>$7.40</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Cultivate</strong></td><td><span class="card-pill">14</span></td><td>3.0</td><td>$0.35</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Farseek</strong></td><td><span class="card-pill">14</span></td><td>2.0</td><td>$0.43</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Craterhoof Behemoth</strong></td><td><span class="card-pill">14</span></td><td>8.0</td><td>$20.85</td><td>Finisher</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Disciple of Freyalise // Garden of Freyalise</strong></td><td><span class="card-pill">14</span></td><td>6.0</td><td>$6.40</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Garruk&#x27;s Uprising</strong></td><td><span class="card-pill">14</span></td><td>3.0</td><td>$0.45</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Open the Way</strong></td><td><span class="card-pill">14</span></td><td>2.0</td><td>$0.72</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Bala Ged Recovery // Bala Ged Sanctuary</strong></td><td><span class="card-pill">14</span></td><td>3.0</td><td>$7.39</td><td>Recursion</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Greater Good</strong></td><td><span class="card-pill">13</span></td><td>4.0</td><td>$1.42</td><td>Draw</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="pop-subtab-Multicolored" class="pop-subtab-content" style="display: none;">
+                    <table>
+                        <thead><tr><th>Card Name</th><th>Times Played</th><th>CMC</th><th>Price ($)</th><th>Category</th></tr></thead>
+                        <tbody class="pop-table-body">
+                            <tr class="pop-card-row"><td class="pop-name-td"><strong>Anguished Unmaking</strong></td><td><span class="card-pill">12</span></td><td>3.0</td><td>$1.33</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Dovin&#x27;s Veto</strong></td><td><span class="card-pill">12</span></td><td>2.0</td><td>$2.40</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Boros Charm</strong></td><td><span class="card-pill">8</span></td><td>2.0</td><td>$4.74</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Mortify</strong></td><td><span class="card-pill">7</span></td><td>3.0</td><td>$0.18</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Terminate</strong></td><td><span class="card-pill">7</span></td><td>2.0</td><td>$0.28</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Growth Spiral</strong></td><td><span class="card-pill">7</span></td><td>2.0</td><td>$0.27</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Lotho, Corrupt Shirriff</strong></td><td><span class="card-pill">7</span></td><td>2.0</td><td>$10.93</td><td>Ramp</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Assassin&#x27;s Trophy</strong></td><td><span class="card-pill">6</span></td><td>2.0</td><td>$0.87</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Psychic Frog</strong></td><td><span class="card-pill">5</span></td><td>2.0</td><td>$5.31</td><td>Draw</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Inkshield</strong></td><td><span class="card-pill">5</span></td><td>5.0</td><td>$5.82</td><td>Protection</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Wistfulness</strong></td><td><span class="card-pill">5</span></td><td>5.0</td><td>$5.97</td><td>nan</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Bedevil</strong></td><td><span class="card-pill">5</span></td><td>3.0</td><td>$0.30</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Supreme Verdict</strong></td><td><span class="card-pill">5</span></td><td>4.0</td><td>$1.39</td><td>Removal</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Adrix and Nev, Twincasters</strong></td><td><span class="card-pill">5</span></td><td>4.0</td><td>$1.32</td><td>Tokens</td></tr><tr class="pop-card-row"><td class="pop-name-td"><strong>Tatyova, Benthic Druid</strong></td><td><span class="card-pill">5</span></td><td>5.0</td><td>$0.19</td><td>Draw</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+        function switchPopSubTab(group) {
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.pop-subtab-content').forEach(content => content.style.display = 'none');
+            event.target.classList.add('active');
+            document.getElementById('pop-subtab-' + group).style.display = 'block';
+        }
+        function filterPopCards() {
+            let input = document.getElementById('popSearch').value.toLowerCase();
+            let activeSubTab = document.querySelector('.pop-subtab-content[style*="display: block"]');
+            if (!activeSubTab) return;
+            let rows = activeSubTab.querySelectorAll('.pop-card-row');
+            rows.forEach(row => {
+                let name = row.querySelector('.pop-name-td').textContent.toLowerCase();
+                if (name.includes(input)) { row.style.display = ''; } else { row.style.display = 'none'; }
+            });
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const players = ["Angelo", "EJ", "Neil", "Nik", "Ruby", "Will B"];
+            const playerColors = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#06b6d4"];
+            const p1 = [20.0, 35.7, 27.8, 18.8, 50.0, 42.1], p1Raw = ["4 / 20", "5 / 14", "5 / 18", "3 / 16", "1 / 2", "8 / 19"], p2 = [50.0, 50.0, 33.3, 62.5, 50.0, 26.3], p2Raw = ["10 / 20", "7 / 14", "6 / 18", "10 / 16", "1 / 2", "5 / 19"], p3 = [20.0, 14.3, 5.6, 12.5, 0.0, 10.5], p3Raw = ["4 / 20", "2 / 14", "1 / 18", "2 / 16", "0 / 2", "2 / 19"], p4 = [10.0, 0.0, 27.8, 6.2, 0.0, 21.1], p4Raw = ["2 / 20", "0 / 14", "5 / 18", "1 / 16", "0 / 2", "4 / 19"];
+            const wentFirst = [15.0, 0.0, 55.6, 18.8, 0.0, 10.5], wentFirstRaw = ["3 / 20", "0 / 14", "10 / 18", "3 / 16", "0 / 2", "2 / 19"], avgTurns = [2.82, 3.0, 1.61, 2.75, 3.0, 2.93], totalPrices = [529.48, 636.08, 432.07, 446.98, 307.73, 1356.43], nonLandPrices = [271.06, 357.03, 303.19, 258.34, 218.82, 515.12];
+
+            function makePctChart(id, labelStr, dataArr, rawArr, colors) {
+                new Chart(document.getElementById(id), { type: 'bar', data: { labels: players, datasets: [{ label: labelStr, data: dataArr, backgroundColor: colors, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return labelStr + ': ' + context.parsed.y + '% (' + rawArr[context.dataIndex] + ')'; } } } }, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '% of Games' } } } } });
+            }
+            makePctChart('chartP1', '1st Place Finishes', p1, p1Raw, playerColors);
+            makePctChart('chartP2', '2nd Place Finishes', p2, p2Raw, playerColors);
+            makePctChart('chartP3', '3rd Place Finishes', p3, p3Raw, playerColors);
+            makePctChart('chartP4', '4th Place Finishes', p4, p4Raw, playerColors);
+            makePctChart('chartTimesWentFirst', 'Times Went First', wentFirst, wentFirstRaw, playerColors);
+
+            new Chart(document.getElementById('chartAvgTurnOrder'), { type: 'bar', data: { labels: players, datasets: [{ label: 'Avg Turn Order', data: avgTurns, backgroundColor: playerColors, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+            new Chart(document.getElementById('chartPriceComparison'), { type: 'bar', data: { labels: players, datasets: [{ label: 'Avg Total Price ($)', data: totalPrices, backgroundColor: '#f59e0b', borderRadius: 4 }, { label: 'Avg Non-Land Price ($)', data: nonLandPrices, backgroundColor: '#f43f5e', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false } });
+
+            const rampData = [9.0, 9.9, 12.5, 14.4, 18.5, 17.1];
+            const drawData = [10.7, 11.0, 12.4, 13.3, 17.0, 21.9];
+            const removalData = [12.3, 14.5, 12.8, 10.4, 12.5, 14.8];
+            const protectionData = [6.4, 10.2, 5.1, 5.7, 3.0, 5.9];
+            const recursionData = [2.8, 1.4, 3.8, 2.5, 1.5, 9.3];
+            const landsMDFCData = [36.8, 38.1, 39.5, 39.3, 40.0, 39.1];
+
+            function makeSimpleBarChart(id, labelStr, dataArr) {
+                new Chart(document.getElementById(id), { type: 'bar', data: { labels: players, datasets: [{ label: labelStr, data: dataArr, backgroundColor: playerColors, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Avg Cards/Deck' }, grid: { color: 'rgba(255,255,255,0.05)' } } } } });
+            }
+
+            makeSimpleBarChart('chartRamp', 'Ramp Cards', rampData);
+            makeSimpleBarChart('chartDraw', 'Draw Cards', drawData);
+            makeSimpleBarChart('chartRemoval', 'Removal Cards', removalData);
+            makeSimpleBarChart('chartProtection', 'Protection Cards', protectionData);
+            makeSimpleBarChart('chartRecursion', 'Recursion Cards', recursionData);
+            makeSimpleBarChart('chartLandsMDFC', 'MDFC Lands', landsMDFCData);
+        });
+    </script>
+</body>
+</html>

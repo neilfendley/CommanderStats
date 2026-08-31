@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will B - Season 3 Commander Clash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0b1120;
+            --bg-card: #151e32;
+            --bg-card-hover: #1e2d4a;
+            --border-color: #233252;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-rose: #f43f5e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); padding: 24px; min-height: 100vh; }
+        header { max-width: 1280px; margin: 0 auto 24px auto; display: flex; flex-direction: column; gap: 16px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .brand-container { display: flex; align-items: center; gap: 16px; }
+        .brand { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .season-select-wrapper { display: flex; align-items: center; gap: 8px; background: var(--bg-card); padding: 4px 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .season-select-label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
+        .season-select { background: transparent; color: var(--accent-blue); font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.9rem; border: none; outline: none; cursor: pointer; }
+        .season-select option { background: var(--bg-card); color: var(--text-primary); }
+        .player-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+        .player-nav-btn { text-decoration: none; color: var(--text-secondary); background: var(--bg-card); padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; border: 1px solid var(--border-color); transition: all 0.2s ease; }
+        .player-nav-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--accent-blue); }
+        .player-nav-btn.active { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border-color: #3b82f6; font-weight: 600; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .container { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        .player-hero { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+        .hero-left { display: flex; align-items: center; gap: 20px; }
+        .avatar-circle { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 700; color: #ffffff; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+        .hero-title h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--text-primary); }
+        .hero-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px; }
+        .kpi-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+        .kpi-card { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; min-width: 130px; text-align: center; }
+        .kpi-value { font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--accent-emerald); }
+        .kpi-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+        .tab-menu { display: flex; gap: 8px; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; overflow-x: auto; }
+        .tab-btn { background: none; border: none; color: var(--text-secondary); font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; padding: 10px 20px; cursor: pointer; border-radius: 8px 8px 0 0; transition: all 0.2s ease; }
+        .tab-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .tab-btn.active { color: var(--accent-blue); border-bottom: 3px solid var(--accent-blue); background: rgba(59, 130, 246, 0.08); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .card-title { font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 12px; }
+        .chart-container { position: relative; height: 280px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+        th { background: rgba(30, 41, 59, 0.8); color: var(--text-secondary); font-weight: 600; text-align: left; padding: 12px 16px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color); }
+        td { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--text-primary); }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .card-pill { background: rgba(255, 255, 255, 0.06); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; }
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .sub-tab-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+        .sub-tab-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+        .search-box { width: 100%; padding: 10px 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 16px; }
+        .search-box:focus { outline: none; border-color: var(--accent-blue); }
+        .deck-list { display: flex; flex-direction: column; gap: 12px; }
+        .deck-card { background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .deck-title { font-weight: 600; color: var(--text-primary); font-size: 1rem; }
+        .deck-url { font-size: 0.8rem; color: var(--text-secondary); display: block; margin-top: 2px; }
+        .btn-archidekt { text-decoration: none; background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.4); padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+        .btn-archidekt:hover { background: var(--accent-blue); color: #fff; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .player-hero { flex-direction: column; align-items: flex-start; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <div class="brand-container">
+                <div class="brand">Commander Clash Stats</div>
+                <div class="season-select-wrapper">
+                    <span class="season-select-label">View:</span>
+                    <select id="seasonSelect" class="season-select" onchange="window.location.href=this.value">
+                        <option value="../Season4/Will B_summary_Season4.html" >Season 4 (Latest)</option>
+<option value="../AllSeasons/Will B_summary_AllSeasons.html" >All Seasons Combined</option>
+<option value="../Season3/Will B_summary_Season3.html" selected>Season 3</option>
+<option value="../Season2/Will B_summary_Season2.html" >Season 2</option>
+<option value="../Season1/overall_summary_Season1.html" >Season 1</option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="player-nav">
+            <a href="overall_summary_Season3.html" class="player-nav-btn">🏆 Overall Summary</a>
+<a href="Angelo_summary_Season3.html" class="player-nav-btn ">Angelo</a>
+<a href="Daniel_summary_Season3.html" class="player-nav-btn ">Daniel</a>
+<a href="EJ_summary_Season3.html" class="player-nav-btn ">EJ</a>
+<a href="Neil_summary_Season3.html" class="player-nav-btn ">Neil</a>
+<a href="Nick_summary_Season3.html" class="player-nav-btn ">Nick</a>
+<a href="Ruby_summary_Season3.html" class="player-nav-btn ">Ruby</a>
+<a href="Will B_summary_Season3.html" class="player-nav-btn active">Will B</a>
+
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Player Hero Header -->
+        <div class="player-hero">
+            <div class="hero-left">
+                <div class="avatar-circle">W</div>
+                <div class="hero-title">
+                    <h1>Will B</h1>
+                    <div class="hero-subtitle">Season 3 Summary & Commander Performance</div>
+                </div>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">17.6%</div>
+                    <div class="kpi-label">Win Rate</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color: var(--accent-blue);">17</div>
+                    <div class="kpi-label">Games Played</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color: var(--accent-amber);">$827.61</div>
+                    <div class="kpi-label">Avg Deck Price</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" style="color: var(--accent-purple);">16</div>
+                    <div class="kpi-label">Decks Played</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Tab Menu -->
+        <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('overview')">Overview & Placements</button>
+            <button class="tab-btn" onclick="switchTab('color-profile')">Color Profile & Archetypes</button>
+            <button class="tab-btn" onclick="switchTab('deck-composition')">Deck Composition</button>
+            <button class="tab-btn" onclick="switchTab('card-categories')">Card Categories</button>
+            <button class="tab-btn" onclick="switchTab('most-played')">Most Played Cards</button>
+            <button class="tab-btn" onclick="switchTab('decks-played')">Decks (16)</button>
+        </div>
+
+        <!-- Tab 1: Overview & Placements -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Placement Distribution (% of Games)</div>
+                    <div class="chart-container">
+                        <canvas id="chartPlacements"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Turn Order Distribution (% of Games)</div>
+                    <div class="chart-container">
+                        <canvas id="chartTurns"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Color Profile & Archetypes -->
+        <div id="tab-color-profile" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Color Play Rate (% of Decks)</div>
+                    <div class="chart-container">
+                        <canvas id="chartColorPlay"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Average Non-Land Cards Per Color</div>
+                    <div class="chart-container">
+                        <canvas id="chartCardsPerColor"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-title">Color Identity Choices</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Color Combination / Guild / Shard</th>
+                            <th>Count Played</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class='card-pill'>Grixis</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>4</td></tr><tr><td><span class='card-pill'>Boros</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Sultai</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>3</td></tr><tr><td><span class='card-pill'>Esper</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>2</td></tr><tr><td><span class='card-pill'>Izzet</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Azorius</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Jund</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4b5563;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#4ade80;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr><tr><td><span class='card-pill'>Jeskai</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fef08a;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#60a5fa;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin:0 2px;border:1px solid rgba(255,255,255,0.3)"></span></span></td><td>1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Deck Composition -->
+        <div id="tab-deck-composition" class="tab-content">
+            <div class="card">
+                <div class="card-title">Average Card Types Per Deck</div>
+                <div class="chart-container">
+                    <canvas id="chartCardTypes"></canvas>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-title">Deck Cost Stats</div>
+                <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                    <div class="kpi-card" style="flex: 1;">
+                        <div class="kpi-value" style="color: var(--accent-amber);">$827.61</div>
+                        <div class="kpi-label">Average Total Deck Cost</div>
+                    </div>
+                    <div class="kpi-card" style="flex: 1;">
+                        <div class="kpi-value" style="color: var(--accent-rose);">$399.05</div>
+                        <div class="kpi-label">Average Non-Land Cost</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Card Categories -->
+        <div id="tab-card-categories" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Average Cards by Category</div>
+                    <div class="chart-container">
+                        <canvas id="chartCategories"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">MDFC Lands Average</div>
+                    <div style="display: flex; align-items: center; justify-content: center; height: 280px;">
+                        <div class="kpi-card" style="flex: 1; text-align: center; padding: 32px;">
+                            <div class="kpi-value" style="font-size: 2.5rem;">38.1</div>
+                            <div class="kpi-label">Avg MDFC Lands Per Deck</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 6: Most Played Cards -->
+        <div id="tab-most-played" class="tab-content">
+            <div class="card">
+                <div class="card-title">Top Cards by Type</div>
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchCardSubTab('Creature')">Creatures</button>
+                    <button class="sub-tab-btn" onclick="switchCardSubTab('Artifact')">Artifacts</button>
+                    <button class="sub-tab-btn" onclick="switchCardSubTab('Enchantment')">Enchantments</button>
+                    <button class="sub-tab-btn" onclick="switchCardSubTab('Instant')">Instants</button>
+                    <button class="sub-tab-btn" onclick="switchCardSubTab('Sorcery')">Sorceries</button>
+                </div>
+                <input type="text" class="search-box" id="cardSearch" onkeyup="filterCards()" placeholder="Search card names...">
+
+                
+                <div id="card-subtab-Creature" class="card-subtab-content" style="display: block;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Card Name</th>
+                                <th>Count Played</th>
+                                <th>CMC</th>
+                                <th>Price ($)</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="card-table-body">
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Rat Colony</strong></td>
+                                <td><span class="card-pill">38</span></td>
+                                <td>2.0</td>
+                                <td>$4.92</td>
+                                <td>Pump</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Baleful Strix</strong></td>
+                                <td><span class="card-pill">9</span></td>
+                                <td>2.0</td>
+                                <td>$1.08</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Malcolm, Alluring Scoundrel</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>2.0</td>
+                                <td>$2.59</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Roaming Throne</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>4.0</td>
+                                <td>$45.24</td>
+                                <td>Copy</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Anger</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>4.0</td>
+                                <td>$0.58</td>
+                                <td>Anthem</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Grand Abolisher</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$15.42</td>
+                                <td>Protection</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Village Bell-Ringer</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>3.0</td>
+                                <td>$0.20</td>
+                                <td>Untap</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Ornithopter of Paradise</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.41</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Viscera Seer</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>1.0</td>
+                                <td>$0.41</td>
+                                <td>Sac Outlet</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Mirkwood Bats</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>4.0</td>
+                                <td>$1.01</td>
+                                <td>Drain</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Shoreline Looter</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.35</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Delney, Streetwise Lookout</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>3.0</td>
+                                <td>$33.43</td>
+                                <td>Evasion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Circuit Mender</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>3.0</td>
+                                <td>$0.16</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Sun Titan</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>6.0</td>
+                                <td>$0.31</td>
+                                <td>Recursion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Restoration Angel</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>4.0</td>
+                                <td>$0.33</td>
+                                <td>Blink</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="card-subtab-Artifact" class="card-subtab-content" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Card Name</th>
+                                <th>Count Played</th>
+                                <th>CMC</th>
+                                <th>Price ($)</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="card-table-body">
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Swiftfoot Boots</strong></td>
+                                <td><span class="card-pill">16</span></td>
+                                <td>2.0</td>
+                                <td>$2.21</td>
+                                <td>Protection</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Arcane Signet</strong></td>
+                                <td><span class="card-pill">15</span></td>
+                                <td>2.0</td>
+                                <td>$0.42</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Lightning Greaves</strong></td>
+                                <td><span class="card-pill">13</span></td>
+                                <td>2.0</td>
+                                <td>$4.34</td>
+                                <td>Protection</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Thought Vessel</strong></td>
+                                <td><span class="card-pill">13</span></td>
+                                <td>2.0</td>
+                                <td>$2.41</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Baleful Strix</strong></td>
+                                <td><span class="card-pill">9</span></td>
+                                <td>2.0</td>
+                                <td>$1.08</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Skullclamp</strong></td>
+                                <td><span class="card-pill">6</span></td>
+                                <td>1.0</td>
+                                <td>$5.61</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Panharmonicon</strong></td>
+                                <td><span class="card-pill">6</span></td>
+                                <td>4.0</td>
+                                <td>$5.94</td>
+                                <td>Blink</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Thornbite Staff</strong></td>
+                                <td><span class="card-pill">6</span></td>
+                                <td>2.0</td>
+                                <td>$8.89</td>
+                                <td>Untap</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Roaming Throne</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>4.0</td>
+                                <td>$45.24</td>
+                                <td>Copy</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Talisman of Dominance</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>2.0</td>
+                                <td>$1.08</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Ornithopter of Paradise</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.41</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Winged Boots</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$8.52</td>
+                                <td>Protection</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Trailblazer&#x27;s Boots</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$1.22</td>
+                                <td>Evasion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Brotherhood Regalia</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$9.26</td>
+                                <td>Evasion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Talisman of Progress</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.36</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="card-subtab-Enchantment" class="card-subtab-content" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Card Name</th>
+                                <th>Count Played</th>
+                                <th>CMC</th>
+                                <th>Price ($)</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="card-table-body">
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Impact Tremors</strong></td>
+                                <td><span class="card-pill">6</span></td>
+                                <td>2.0</td>
+                                <td>$2.06</td>
+                                <td>Burn</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Aqueous Form</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>1.0</td>
+                                <td>$0.28</td>
+                                <td>Evasion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Goblin Bombardment</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>2.0</td>
+                                <td>$2.19</td>
+                                <td>Sac Outlet</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Reconnaissance Mission</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>4.0</td>
+                                <td>$0.37</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Silent Hallcreeper</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>2.0</td>
+                                <td>$1.56</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Coastal Piracy</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>4.0</td>
+                                <td>$0.27</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Aether Tunnel</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>2.0</td>
+                                <td>$0.60</td>
+                                <td>Evasion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Curiosity</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>1.0</td>
+                                <td>$0.75</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Phyresis</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>2.0</td>
+                                <td>$1.86</td>
+                                <td>Infect</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Super State</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>7.0</td>
+                                <td>$19.46</td>
+                                <td>Pump</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Leyline of Transformation</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>4.0</td>
+                                <td>$0.52</td>
+                                <td>Anthem</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Black Market Connections</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>3.0</td>
+                                <td>$10.69</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Kindred Discovery</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>5.0</td>
+                                <td>$6.09</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Reflections of Littjara</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>5.0</td>
+                                <td>$1.48</td>
+                                <td>Copy</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Mystic Remora</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>1.0</td>
+                                <td>$10.64</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="card-subtab-Instant" class="card-subtab-content" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Card Name</th>
+                                <th>Count Played</th>
+                                <th>CMC</th>
+                                <th>Price ($)</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="card-table-body">
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Arcane Denial</strong></td>
+                                <td><span class="card-pill">12</span></td>
+                                <td>2.0</td>
+                                <td>$1.81</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Counterspell</strong></td>
+                                <td><span class="card-pill">11</span></td>
+                                <td>2.0</td>
+                                <td>$1.29</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Negate</strong></td>
+                                <td><span class="card-pill">9</span></td>
+                                <td>2.0</td>
+                                <td>$0.14</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Swan Song</strong></td>
+                                <td><span class="card-pill">8</span></td>
+                                <td>1.0</td>
+                                <td>$9.45</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Teferi&#x27;s Protection</strong></td>
+                                <td><span class="card-pill">7</span></td>
+                                <td>3.0</td>
+                                <td>$35.19</td>
+                                <td>Protection</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Path to Exile</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>1.0</td>
+                                <td>$1.26</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Generous Gift</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>3.0</td>
+                                <td>$0.87</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Terminate</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>2.0</td>
+                                <td>$0.28</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Chaos Warp</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>3.0</td>
+                                <td>$0.35</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Enlightened Tutor</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>1.0</td>
+                                <td>$21.29</td>
+                                <td>Tutor</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Swords to Plowshares</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>1.0</td>
+                                <td>$1.32</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Bulk Up</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.33</td>
+                                <td>Pump</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Assassin&#x27;s Trophy</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.87</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Beast Within</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>3.0</td>
+                                <td>$0.56</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Heroic Intervention</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$8.59</td>
+                                <td>Protection</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="card-subtab-Sorcery" class="card-subtab-content" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Card Name</th>
+                                <th>Count Played</th>
+                                <th>CMC</th>
+                                <th>Price ($)</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody class="card-table-body">
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Toxic Deluge</strong></td>
+                                <td><span class="card-pill">10</span></td>
+                                <td>3.0</td>
+                                <td>$4.47</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Blasphemous Act</strong></td>
+                                <td><span class="card-pill">8</span></td>
+                                <td>9.0</td>
+                                <td>$0.76</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Demonic Tutor</strong></td>
+                                <td><span class="card-pill">5</span></td>
+                                <td>2.0</td>
+                                <td>$12.05</td>
+                                <td>Tutor</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Austere Command</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>6.0</td>
+                                <td>$0.36</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Farseek</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>2.0</td>
+                                <td>$0.43</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Cultivate</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>3.0</td>
+                                <td>$0.35</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Jeska&#x27;s Will</strong></td>
+                                <td><span class="card-pill">4</span></td>
+                                <td>3.0</td>
+                                <td>$38.08</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Plague Wind</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>9.0</td>
+                                <td>$2.48</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Reanimate</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>1.0</td>
+                                <td>$2.05</td>
+                                <td>Recursion</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Bubbling Muck</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>1.0</td>
+                                <td>$2.13</td>
+                                <td>Ramp</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Swarmyard Massacre</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>5.0</td>
+                                <td>$4.49</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Plague of Vermin</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>7.0</td>
+                                <td>$1.90</td>
+                                <td>Tokens</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Revenge of the Rats</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>4.0</td>
+                                <td>$0.32</td>
+                                <td>Tokens</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Distant Melody</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>4.0</td>
+                                <td>$0.36</td>
+                                <td>Draw</td>
+                            </tr>
+                            
+                            <tr class="card-row">
+                                <td class="card-name-td"><strong>Kindred Dominance</strong></td>
+                                <td><span class="card-pill">3</span></td>
+                                <td>7.0</td>
+                                <td>$4.64</td>
+                                <td>Removal</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Tab 7: Decks Played -->
+        <div id="tab-decks-played" class="tab-content">
+            <div class="card">
+                <div class="card-title">Decks Played</div>
+                <div class="deck-list">
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Itsaboxofballoons</span>
+                            <span class="deck-url">https://archidekt.com/decks/14095508/itsaboxofballoons</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/14095508/itsaboxofballoons" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Beamsplitter Artisan</span>
+                            <span class="deck-url">https://archidekt.com/decks/14733386/beamsplitter_artisan</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/14733386/beamsplitter_artisan" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Boots Made For Shootin</span>
+                            <span class="deck-url">https://archidekt.com/decks/14745268/boots_made_for_shootin</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/14745268/boots_made_for_shootin" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Obekupkeep</span>
+                            <span class="deck-url">https://archidekt.com/decks/14834769/obekupkeep</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/14834769/obekupkeep" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Hash Browns</span>
+                            <span class="deck-url">https://archidekt.com/decks/13887331/hash_browns</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/13887331/hash_browns" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Blink Twice</span>
+                            <span class="deck-url">https://archidekt.com/decks/13460251/blink_twice</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/13460251/blink_twice" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Squee 3 Squee Rising</span>
+                            <span class="deck-url">https://archidekt.com/decks/13792470/squee_3_squee_rising</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/13792470/squee_3_squee_rising" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Ninbootsju</span>
+                            <span class="deck-url">https://archidekt.com/decks/14754358/ninbootsju</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/14754358/ninbootsju" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">3Dog</span>
+                            <span class="deck-url">https://archidekt.com/decks/16100356/3dog</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/16100356/3dog" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">The Giver</span>
+                            <span class="deck-url">https://archidekt.com/decks/15927886/the_giver</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/15927886/the_giver" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">16865812</span>
+                            <span class="deck-url">https://archidekt.com/decks/16865812</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/16865812" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Bomb Wick</span>
+                            <span class="deck-url">https://archidekt.com/decks/16865812/bomb_wick</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/16865812/bomb_wick" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                    <div class="deck-card">
+                        <div class="deck-info">
+                            <span class="deck-title">Bomb Wick 2 Oops All Changelings</span>
+                            <span class="deck-url">https://archidekt.com/decks/17421375/bomb_wick_2_oops_all_changelings</span>
+                        </div>
+                        <a href="https://archidekt.com/decks/17421375/bomb_wick_2_oops_all_changelings" target="_blank" rel="noopener" class="btn-archidekt">View on Archidekt &#8599;</a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        function switchCardSubTab(type) {
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.card-subtab-content').forEach(content => content.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById('card-subtab-' + type).style.display = 'block';
+        }
+
+        function filterCards() {
+            let input = document.getElementById('cardSearch').value.toLowerCase();
+            let activeSubTab = document.querySelector('.card-subtab-content[style*="display: block"]');
+            if (!activeSubTab) return;
+            let rows = activeSubTab.querySelectorAll('.card-row');
+            rows.forEach(row => {
+                let name = row.querySelector('.card-name-td').textContent.toLowerCase();
+                if (name.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const pRaw = ["3 / 17", "7 / 17", "3 / 17", "2 / 17"];
+            const tRaw = ["3 / 17", "4 / 17", "4 / 17", "4 / 17"];
+
+            new Chart(document.getElementById('chartPlacements'), {
+                type: 'bar',
+                data: {
+                    labels: ['1st Place', '2nd Place', '3rd Place', '4th Place'],
+                    datasets: [{
+                        label: 'Finish %',
+                        data: [17.6, 41.2, 17.6, 11.8],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let rawStr = pRaw[context.dataIndex];
+                                    return context.parsed.y + '% (' + rawStr + ')';
+                                }
+                            }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '% of Games' }, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            new Chart(document.getElementById('chartTurns'), {
+                type: 'bar',
+                data: {
+                    labels: ['Turn 1', 'Turn 2', 'Turn 3', 'Turn 4'],
+                    datasets: [{
+                        label: 'Turn Order %',
+                        data: [17.6, 23.5, 23.5, 23.5],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let rawStr = tRaw[context.dataIndex];
+                                    return context.parsed.y + '% (' + rawStr + ')';
+                                }
+                            }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '% of Games' }, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            new Chart(document.getElementById('chartColorPlay'), {
+                type: 'bar',
+                data: {
+                    labels: ['White', 'Blue', 'Black', 'Red', 'Green'],
+                    datasets: [{
+                        label: '% of Decks',
+                        data: [43.8, 75.0, 62.5, 62.5, 25.0],
+                        backgroundColor: ['#fef08a', '#60a5fa', '#c084fc', '#f87171', '#4ade80'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            new Chart(document.getElementById('chartCardsPerColor'), {
+                type: 'bar',
+                data: {
+                    labels: ['White', 'Blue', 'Black', 'Red', 'Green'],
+                    datasets: [{
+                        label: 'Avg Cards / Deck',
+                        data: [17.4, 24.0, 23.0, 14.5, 7.8],
+                        backgroundColor: ['#fef08a', '#60a5fa', '#c084fc', '#f87171', '#4ade80'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            new Chart(document.getElementById('chartCardTypes'), {
+                type: 'bar',
+                data: {
+                    labels: ['Creature', 'Instant', 'Sorcery', 'Artifact', 'Enchantment', 'Land', 'MDFC', 'Planeswalker'],
+                    datasets: [{
+                        label: 'Avg Count Per Deck',
+                        data: [43.2, 14.4, 0.0, 20.6, 12.5, 37.4, 0.7, 0.0],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            new Chart(document.getElementById('chartCategories'), {
+                type: 'bar',
+                data: {
+                    labels: ['Ramp', 'Draw', 'Removal', 'Protection', 'Recursion'],
+                    datasets: [{
+                        label: 'Avg Cards Per Deck',
+                        data: [13.2, 16.2, 14.6, 7.9, 3.7],
+                        backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#a855f7'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
